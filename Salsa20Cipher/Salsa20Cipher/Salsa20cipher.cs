@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Salsa20Prueba
+namespace Salsa20Cipher
 {
     static class Salsa20cipher
     {
