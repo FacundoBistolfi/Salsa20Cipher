@@ -76,14 +76,11 @@ namespace Salsa20Cipher
             else
             {
 
-                byte[] inMsg = File.ReadAllBytes(tbInPath.Text);
-
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                byte[] outMsg = Salsa20Cipher.Salsa20cipher.crypt(key, nonce, keyLength, inMsg);
+                Salsa20Cipher.Salsa20cipher.crypt(key, nonce, keyLength, tbInPath.Text, tbOutPath.Text);
                 watch.Stop();
                 tbTime.Text = watch.ElapsedMilliseconds.ToString();
 
-                File.WriteAllBytes(tbOutPath.Text, outMsg);
             }
 
         }

@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace Salsa20Cipher
 {
     static class Salsa20cipher
     {
+        #region Constantes
+
         //**********************
         // CONSTANTES
         //**********************
@@ -16,11 +19,41 @@ namespace Salsa20Cipher
         private static String CONST_16BYTE = "expand 16-byte k";
         private static String CONST_10BYTE = "expand 10-byte k";
 
+        #endregion
+
 
         //**********************
         // FUNCIONES DE ENCRIPTAR MENSAJE
         //**********************
 
+        //Funcion que encripta un archivo
+        public static void crypt(byte[] key, byte[] nonce, int keyLength, String inPath, String outPath)
+        {
+
+            FileStream inFs = new FileStream(inPath, FileMode.Open, FileAccess.Read);
+            FileStream outFs = new FileStream(outPath, FileMode.Append, FileAccess.Write);
+            byte[] bufferIn = new byte[64];
+            byte[] bufferOut = new byte[64];
+            ulong i = 0;
+
+            int numBytesRead = 0;            
+            int numBytesToRead = (int)inFs.Length;
+
+            while (numBytesToRead > 0) {
+                int n = inFs.Read(bufferIn, numBytesRead, numBytesToRead);
+                bufferOut = cryptBlock(key,nonce,i,bufferIn);
+                //outFs.Write(bufferOut, numBytesRead, 64);
+
+                numBytesRead += n;
+                numBytesToRead -= n;
+               
+                i++;
+            }
+
+            inFs.Close();
+            outFs.Close();
+
+        }
 
         //Funcion que encripta un array de bytes
         public static byte[] crypt(byte[] key, byte[] nonce, int keyLength, byte[] message)
@@ -150,6 +183,9 @@ namespace Salsa20Cipher
             return block;
         }
 
+        #region Funciones de expansion
+
+
         //*************************
         // FUNCIONES DE EXPANSION
         //*************************
@@ -242,6 +278,10 @@ namespace Salsa20Cipher
             return stringToWord(s);
         }
 
+        #endregion
+        
+        #region Funciones de ronda
+
         //**********************
         // FUNCIONES DE RONDA
         //**********************
@@ -293,6 +333,11 @@ namespace Salsa20Cipher
         {
             return (value << shift) | (value >> (32 - shift));
         }
+
+        #endregion
+
+        #region Funciones de conversion
+
 
         //**********************
         // FUNCIONES DE CONVERSION
@@ -368,5 +413,8 @@ namespace Salsa20Cipher
             BitConverter.GetBytes(array[1]).CopyTo(bytes, 4);
             return BitConverter.ToUInt64(bytes, 0);
         }
+
+        #endregion
+
     }
 }
