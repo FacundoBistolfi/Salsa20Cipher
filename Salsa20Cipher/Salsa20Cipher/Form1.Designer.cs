@@ -35,6 +35,12 @@
             this.tbOut = new System.Windows.Forms.TextBox();
             this.tbIn = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.btnOut = new System.Windows.Forms.Button();
+            this.btnIn = new System.Windows.Forms.Button();
+            this.tbOutPath = new System.Windows.Forms.TextBox();
+            this.tbInPath = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnGo = new System.Windows.Forms.Button();
             this.tbTime = new System.Windows.Forms.TextBox();
@@ -50,12 +56,8 @@
             this.tbKey = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.tbInPath = new System.Windows.Forms.TextBox();
-            this.tbOutPath = new System.Windows.Forms.TextBox();
-            this.btnIn = new System.Windows.Forms.Button();
-            this.btnOut = new System.Windows.Forms.Button();
+            this.pbar = new System.Windows.Forms.ProgressBar();
+            this.label10 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -137,8 +139,64 @@
             this.tabPage2.Text = "Archivo";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // btnOut
+            // 
+            this.btnOut.Location = new System.Drawing.Point(312, 78);
+            this.btnOut.Name = "btnOut";
+            this.btnOut.Size = new System.Drawing.Size(75, 23);
+            this.btnOut.TabIndex = 5;
+            this.btnOut.Text = "Seleccionar";
+            this.btnOut.UseVisualStyleBackColor = true;
+            this.btnOut.Click += new System.EventHandler(this.btnOut_Click);
+            // 
+            // btnIn
+            // 
+            this.btnIn.Location = new System.Drawing.Point(312, 24);
+            this.btnIn.Name = "btnIn";
+            this.btnIn.Size = new System.Drawing.Size(75, 23);
+            this.btnIn.TabIndex = 4;
+            this.btnIn.Text = "Seleccionar";
+            this.btnIn.UseVisualStyleBackColor = true;
+            this.btnIn.Click += new System.EventHandler(this.btnIn_Click);
+            // 
+            // tbOutPath
+            // 
+            this.tbOutPath.Location = new System.Drawing.Point(7, 75);
+            this.tbOutPath.Name = "tbOutPath";
+            this.tbOutPath.ReadOnly = true;
+            this.tbOutPath.Size = new System.Drawing.Size(300, 20);
+            this.tbOutPath.TabIndex = 3;
+            // 
+            // tbInPath
+            // 
+            this.tbInPath.Location = new System.Drawing.Point(6, 24);
+            this.tbInPath.Name = "tbInPath";
+            this.tbInPath.ReadOnly = true;
+            this.tbInPath.Size = new System.Drawing.Size(300, 20);
+            this.tbInPath.TabIndex = 2;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 51);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(36, 13);
+            this.label9.TabIndex = 1;
+            this.label9.Text = "Salida";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(3, 5);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(44, 13);
+            this.label8.TabIndex = 0;
+            this.label8.Text = "Entrada";
+            // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label10);
+            this.panel1.Controls.Add(this.pbar);
             this.panel1.Controls.Add(this.btnGo);
             this.panel1.Controls.Add(this.tbTime);
             this.panel1.Controls.Add(this.label7);
@@ -154,7 +212,7 @@
             this.panel1.Controls.Add(this.label4);
             this.panel1.Location = new System.Drawing.Point(489, 12);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(387, 322);
+            this.panel1.Size = new System.Drawing.Size(387, 370);
             this.panel1.TabIndex = 20;
             // 
             // btnGo
@@ -288,59 +346,23 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // label8
+            // pbar
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(3, 5);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(44, 13);
-            this.label8.TabIndex = 0;
-            this.label8.Text = "Entrada";
+            this.pbar.Location = new System.Drawing.Point(19, 308);
+            this.pbar.Name = "pbar";
+            this.pbar.Size = new System.Drawing.Size(346, 23);
+            this.pbar.Step = 1;
+            this.pbar.TabIndex = 27;
+            this.pbar.Click += new System.EventHandler(this.progressBar1_Click);
             // 
-            // label9
+            // label10
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 51);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(36, 13);
-            this.label9.TabIndex = 1;
-            this.label9.Text = "Salida";
-            // 
-            // tbInPath
-            // 
-            this.tbInPath.Location = new System.Drawing.Point(6, 24);
-            this.tbInPath.Name = "tbInPath";
-            this.tbInPath.ReadOnly = true;
-            this.tbInPath.Size = new System.Drawing.Size(300, 20);
-            this.tbInPath.TabIndex = 2;
-            // 
-            // tbOutPath
-            // 
-            this.tbOutPath.Location = new System.Drawing.Point(7, 75);
-            this.tbOutPath.Name = "tbOutPath";
-            this.tbOutPath.ReadOnly = true;
-            this.tbOutPath.Size = new System.Drawing.Size(300, 20);
-            this.tbOutPath.TabIndex = 3;
-            // 
-            // btnIn
-            // 
-            this.btnIn.Location = new System.Drawing.Point(312, 24);
-            this.btnIn.Name = "btnIn";
-            this.btnIn.Size = new System.Drawing.Size(75, 23);
-            this.btnIn.TabIndex = 4;
-            this.btnIn.Text = "Seleccionar";
-            this.btnIn.UseVisualStyleBackColor = true;
-            this.btnIn.Click += new System.EventHandler(this.btnIn_Click);
-            // 
-            // btnOut
-            // 
-            this.btnOut.Location = new System.Drawing.Point(312, 78);
-            this.btnOut.Name = "btnOut";
-            this.btnOut.Size = new System.Drawing.Size(75, 23);
-            this.btnOut.TabIndex = 5;
-            this.btnOut.Text = "Seleccionar";
-            this.btnOut.UseVisualStyleBackColor = true;
-            this.btnOut.Click += new System.EventHandler(this.btnOut_Click);
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(21, 334);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(41, 13);
+            this.label10.TabIndex = 28;
+            this.label10.Text = "label10";
             // 
             // Form1
             // 
@@ -393,6 +415,8 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button btnOut;
+        private System.Windows.Forms.ProgressBar pbar;
+        private System.Windows.Forms.Label label10;
     }
 }
 

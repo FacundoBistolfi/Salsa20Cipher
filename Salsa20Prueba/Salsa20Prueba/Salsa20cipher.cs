@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Salsa20Prueba
 {
     static class Salsa20cipher
     {
+        #region Constantes
+
         //**********************
         // CONSTANTES
         //**********************
@@ -19,23 +19,50 @@ namespace Salsa20Prueba
         private static String CONST_16BYTE = "expand 16-byte k";
         private static String CONST_10BYTE = "expand 10-byte k";
 
+        #endregion
+
 
         //**********************
         // FUNCIONES DE ENCRIPTAR MENSAJE
         //**********************
 
+        //Funcion que encripta un archivo
+        public static void crypt(byte[] key, byte[] nonce, int keyLength, String inPath, String outPath)
+        {
+
+            FileStream inFs = new FileStream(inPath, FileMode.Open, FileAccess.Read);
+            FileStream outFs = new FileStream(outPath, FileMode.Create);
+            byte[] bufferIn = new byte[64];
+            int fileOffset = 0;
+            ulong i = 0;
+
+            while (fileOffset < inFs.Length)
+            {
+                inFs.Seek(fileOffset, SeekOrigin.Begin);
+                bufferIn = new byte[64];
+                int bytesRead = inFs.Read(bufferIn, 0, 64);
+                outFs.Write(cryptBlock(key, nonce, i, bufferIn), 0, 64);
+                fileOffset += 64;
+                i++;
+            }
+
+            inFs.Close();
+            outFs.Close();
+
+        }
 
         //Funcion que encripta un array de bytes
         public static byte[] crypt(byte[] key, byte[] nonce, int keyLength, byte[] message)
         {
             //Creo el espacio para el mensaje encriptado
-            int cant = (message.Length % 64 == 0) ? message.Length : message.Length + (64 - message.Length%64);
+            int cant = (message.Length % 64 == 0) ? message.Length : message.Length + (64 - message.Length % 64);
             byte[] encriptado = new byte[cant];
             byte[] bloque = new byte[64];
 
             //Recorro todos los bloques y los encripto
-            int j,i = 0;
-            while(i < message.Length/64){
+            int j, i = 0;
+            while (i < message.Length / 64)
+            {
                 for (j = 0; j < 64; j++)
                     bloque[j] = message[i * 64 + j];
                 bloque = cryptBlock(key, nonce, (ulong)i, bloque);
@@ -47,9 +74,9 @@ namespace Salsa20Prueba
             //Si me faltó parte del mensaje
             if (cant > message.Length)
             {
-                int cantFalta = (message.Length - (i*64));
+                int cantFalta = (message.Length - (i * 64));
                 bloque = new byte[64];
-                for(j = 0; j<cantFalta; j++)
+                for (j = 0; j < cantFalta; j++)
                     bloque[j] = message[i * 64 + j];
                 bloque = cryptBlock(key, nonce, (ulong)i, bloque);
                 for (j = 0; j < 64; j++)
@@ -70,16 +97,16 @@ namespace Salsa20Prueba
         //**********************
 
         //Funcion que encripta un bloque de 64 bytes en byte[]
-        private static byte[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, int keyLength, byte[] block)
+        public static byte[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, int keyLength, byte[] block)
         {
-            if (block.Length != 64)
-                throw new Exception("Wrong block length");
+            if (block.Length != 64) throw new ArgumentOutOfRangeException(nameof(block), block.Length, "Wrong block length");
 
             //Paso el array de byte a un array de UInt32
             UInt32[] blockint32 = new UInt32[16];
+
             for (int i = 0; i < 16; i++)
                 blockint32[i] = BitConverter.ToUInt32(block, i * 4);
-            
+
             //Encripto el bloque
             blockint32 = cryptBlock(key, nonce, blockNumber, keyLength, blockint32);
 
@@ -93,21 +120,21 @@ namespace Salsa20Prueba
 
             return block;
         }
+
         //Sobrecarga de la funcion sin keyLength
-        private static byte[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, byte[] block)
+        public static byte[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, byte[] block)
         {
-            return cryptBlock(key,nonce,blockNumber,0,block);
+            return cryptBlock(key, nonce, blockNumber, 0, block);
         }
 
         //Funcion que encripta un bloque de 64 bytes dado en UInt32[]
         private static UInt32[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, int keyLength, UInt32[] block)
         {
-            if (block.Length != 16)
-                throw new Exception("Wrong block length");
+            if (block.Length != 16) throw new ArgumentOutOfRangeException(nameof(block), block.Length, "Wrong block length");
 
-            UInt32[] hash = hashSalsa20(key,nonce,blockNumber,keyLength);
-            for(int i=0;i<16;i++)
-                block[i] = block[i]^hash[i];
+            UInt32[] hash = hashSalsa20(key, nonce, blockNumber, keyLength);
+
+            for (int i = 0; i < 16; i++) block[i] = block[i] ^ hash[i];
 
             return block;
         }
@@ -117,7 +144,6 @@ namespace Salsa20Prueba
         {
             return cryptBlock(key, nonce, blockNumber, 0, block);
         }
-
 
         //**********************
         // FUNCIONES DE HASH
@@ -153,6 +179,9 @@ namespace Salsa20Prueba
             return block;
         }
 
+        #region Funciones de expansion
+
+
         //*************************
         // FUNCIONES DE EXPANSION
         //*************************
@@ -161,33 +190,35 @@ namespace Salsa20Prueba
         private static UInt32[] getExpansionBlock(UInt32[] key, UInt32[] nonce, UInt32[] blockNumber, int keyLength)
         {
             //Se verifican las longitudes de los arrays
-            if ((keyLength == KEY_32BYTE) && (key.Length != 8))
-                throw new Exception("Wrong keyLength given");
-            if ((keyLength == KEY_16BYTE) && (key.Length != 4))
-                throw new Exception("Wrong keyLength given");
-            if ((keyLength == KEY_10BYTE) && (key.Length != 4))
-                throw new Exception("Wrong keyLength given");
+            if ((keyLength == KEY_32BYTE) && (key.Length != 8)) throw new ArgumentOutOfRangeException(nameof(keyLength), keyLength, "Wrong keyLength given");
+            if ((keyLength == KEY_16BYTE) && (key.Length != 4)) throw new ArgumentOutOfRangeException(nameof(keyLength), keyLength, "Wrong keyLength given");
+            if ((keyLength == KEY_10BYTE) && (key.Length != 4)) throw new ArgumentOutOfRangeException(nameof(keyLength), keyLength, "Wrong keyLength given");
 
             //Se obtiene la constante de expansion que depende de la longitud de la key
             UInt32[] constBlock = getExpansionConstant(keyLength);
             UInt32[] expansionBlock = new UInt32[16];
 
+            int repite = (keyLength == KEY_32BYTE) ? 4 : 0;
+
             //Armo el bloque de expansion
             //Armo la diagonal con el bloque de constantes
             for (int i = 0; i < 4; i++)
+            {
                 expansionBlock[i * 5] = constBlock[i];
-            //Asigno las primeras 4 words de la key
-            for (int i = 0; i < 4; i++)
+                //Asigno las primeras 4 words de la key
                 expansionBlock[i + 1] = key[i];
-            //Asigno las words del nonce
+                //Asigno las 4 words de la key que faltan, en caso de no ser una key de 32 bytes se repiten las primeras
+                expansionBlock[i + 11] = key[i + repite];
+            }
+
             for (int i = 0; i < 2; i++)
+            {
+                //Asigno las words del nonce
                 expansionBlock[i + 6] = nonce[i];
-            //Asigno las words del block number
-            for (int i = 0; i < 2; i++)
+                //Asigno las words del block number            
                 expansionBlock[i + 8] = blockNumber[i];
-            //Asigno las 4 words de la key que faltan, en caso de no ser una key de 32 bytes se repiten las primeras
-            for (int i = 0; i < 4; i++)
-                expansionBlock[i + 11] = key[i + ((keyLength == KEY_32BYTE) ? 4 : 0)];
+            }
+
             return expansionBlock;
         }
 
@@ -202,14 +233,9 @@ namespace Salsa20Prueba
         {
             //Se verifica que la cantidad de caracteres en la key y en el nonce sean los adecuados,
             //y en caso de que se haya indicando un tamaño de key, este sea 10, 16 o 32
-            if (key.Length > 32)
-                throw new Exception("Wrong key size");
-            if (nonce.Length > 8)
-                throw new Exception("Wrong nonce size");
-            if (keyLength != 0)
-                if ((keyLength != 10) && (keyLength != 16) && (keyLength != 32))
-                    throw new Exception("Wrong key size given");
-
+            if (key.Length > 32) throw new ArgumentOutOfRangeException(nameof(key), key.Length, "Wrong key size");
+            if (nonce.Length > 8) throw new ArgumentOutOfRangeException(nameof(nonce), nonce.Length, "Wrong nonce size");
+            if (keyLength != 0 && (keyLength != 10) && (keyLength != 16) && (keyLength != 32)) throw new ArgumentOutOfRangeException(nameof(keyLength), keyLength, "Wrong key size given");
 
             //Si no se indica la longitud de la key, esta se asigna a la longitud mas cercana 
             // - si tiene mas de 16 bytes, será una key de 32 bytes
@@ -227,7 +253,6 @@ namespace Salsa20Prueba
             UInt32[] keyBlock = byteToWord(key, (longitud == KEY_32BYTE) ? KEY_32BYTE : KEY_16BYTE);
             UInt32[] nonceBlock = byteToWord(nonce, 8);
             UInt32[] numberBlock = longToWord(blockNumber);
-
 
             return getExpansionBlock(keyBlock, nonceBlock, numberBlock, longitud);
         }
@@ -249,6 +274,10 @@ namespace Salsa20Prueba
             return stringToWord(s);
         }
 
+        #endregion
+
+        #region Funciones de ronda
+
         //**********************
         // FUNCIONES DE RONDA
         //**********************
@@ -256,8 +285,8 @@ namespace Salsa20Prueba
         //Funcion que ejecuta una vuelta para cada columna y otra para cada vuelta
         private static void doubleRound(ref UInt32[] b)
         {
-          columnRound(ref b);
-          rowRound(ref b);
+            columnRound(ref b);
+            rowRound(ref b);
         }
 
         //Funcion que realiza un cuarto de vuelta para cada fila
@@ -292,7 +321,7 @@ namespace Salsa20Prueba
 
         private static UInt32 rotl(UInt32 value, int shift)
         {
-            return rotl(value,shift,32);
+            return rotl(value, shift, 32);
         }
 
 
@@ -300,6 +329,11 @@ namespace Salsa20Prueba
         {
             return (value << shift) | (value >> (32 - shift));
         }
+
+        #endregion
+
+        #region Funciones de conversion
+
 
         //**********************
         // FUNCIONES DE CONVERSION
@@ -345,7 +379,6 @@ namespace Salsa20Prueba
             return byteToWord(bytes, 0);
         }
 
-
         //Funcion que convierte un unsigned int de 64 bytes en un array de UInt32
         private static UInt32[] longToWord(UInt64 l)
         {
@@ -370,13 +403,14 @@ namespace Salsa20Prueba
         //Funcion que convierte un array de dos UInt32 a un UInt64 
         private static UInt64 wordToLong(UInt32[] array)
         {
-            if (array.Length != 2)
-                throw new Exception("incorrect size");
+            if (array.Length != 2) throw new ArgumentOutOfRangeException(nameof(array), array.Length, "incorrect size");
             byte[] bytes = new byte[8];
-            BitConverter.GetBytes(array[0]).CopyTo(bytes,0);
-            BitConverter.GetBytes(array[1]).CopyTo(bytes,4);
-            return BitConverter.ToUInt64(bytes,0);
-            
+            BitConverter.GetBytes(array[0]).CopyTo(bytes, 0);
+            BitConverter.GetBytes(array[1]).CopyTo(bytes, 4);
+            return BitConverter.ToUInt64(bytes, 0);
         }
+
+        #endregion
+
     }
 }

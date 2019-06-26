@@ -31,22 +31,17 @@ namespace Salsa20Cipher
         {
 
             FileStream inFs = new FileStream(inPath, FileMode.Open, FileAccess.Read);
-            FileStream outFs = new FileStream(outPath, FileMode.Append, FileAccess.Write);
+            FileStream outFs = new FileStream(outPath, FileMode.Create);
             byte[] bufferIn = new byte[64];
-            byte[] bufferOut = new byte[64];
+            int fileOffset = 0;
             ulong i = 0;
 
-            int numBytesRead = 0;            
-            int numBytesToRead = (int)inFs.Length;
-
-            while (numBytesToRead > 0) {
-                int n = inFs.Read(bufferIn, numBytesRead, numBytesToRead);
-                bufferOut = cryptBlock(key,nonce,i,bufferIn);
-                //outFs.Write(bufferOut, numBytesRead, 64);
-
-                numBytesRead += n;
-                numBytesToRead -= n;
-               
+            while (fileOffset < inFs.Length) {
+                inFs.Seek(fileOffset, SeekOrigin.Begin);
+                bufferIn = new byte[64];
+                int bytesRead = inFs.Read(bufferIn, 0, 64);
+                outFs.Write(cryptBlock(key, nonce, i, bufferIn), 0, 64);
+                fileOffset += 64;
                 i++;
             }
 
@@ -101,7 +96,7 @@ namespace Salsa20Cipher
         //**********************
 
         //Funcion que encripta un bloque de 64 bytes en byte[]
-        private static byte[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, int keyLength, byte[] block)
+        public static byte[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, int keyLength, byte[] block)
         {
             if (block.Length != 64) throw new ArgumentOutOfRangeException(nameof(block), block.Length, "Wrong block length");
 
@@ -126,7 +121,7 @@ namespace Salsa20Cipher
         }
 
         //Sobrecarga de la funcion sin keyLength
-        private static byte[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, byte[] block)
+        public static byte[] cryptBlock(byte[] key, byte[] nonce, ulong blockNumber, byte[] block)
         {
             return cryptBlock(key, nonce, blockNumber, 0, block);
         }

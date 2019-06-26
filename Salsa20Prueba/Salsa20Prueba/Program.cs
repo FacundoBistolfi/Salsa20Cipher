@@ -34,50 +34,60 @@ namespace Salsa20Prueba
             mostrarBloque(hash);
 
             */
-
+            String[] tamaños = { "1kb", "100kb", "500kb", "1mb", "10mb", "100mb", "250mb", "500mb", "1gb" };
             byte[] key = Encoding.ASCII.GetBytes("1234567890123456");
             byte[] nonce = Encoding.ASCII.GetBytes("ABCDabcd");
-            //StreamReader inFile = new StreamReader();
-            //byte[] message = Encoding.UTF8.GetBytes(inFile.ReadToEnd());
-            byte[] message = File.ReadAllBytes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "in.txt"));
-            
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            byte[] crypt = Salsa20cipher.crypt(key, nonce, message);
-            watch.Stop();
-            Console.WriteLine("Primera encriptación duró " + watch.ElapsedMilliseconds + " ms");
-            escribirArchivo("primero.txt", crypt);
-                
 
-            var watch2 = System.Diagnostics.Stopwatch.StartNew();
-            byte[] crypt2 = Salsa20cipher.crypt(key, nonce, crypt);
-            watch2.Stop();
-            Console.WriteLine("Segunda encriptación duró " + watch2.ElapsedMilliseconds + " ms");
-            escribirArchivo("segundo.txt", crypt2);
-            escribirArchivo("textoplano.txt", message);
+            string salida = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "salida ");
+
+            for (int j = 0; j < 3; j++)
+            {
 
 
-            
+                for (int i = 0; i < tamaños.Length; i++)
+                {
+
+                    Console.WriteLine("Tamaño: " + tamaños[i]);
+                    string inPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), tamaños[i]);
+
+                    long t = encriptarArchivo(key, nonce, inPath, salida + tamaños[i]);
+
+                    Console.WriteLine("Tardó " + t);
+                }
+
+            }
 
             Console.ReadKey();
             
         }
 
-        private void mostrarBloque(UInt32[] b)
+       
+
+        public static long encriptarArchivo(byte[] key, byte[] nonce, String inPath, String outPath)
         {
-            for (int i = 0; i < b.Length; i++)
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            FileStream inFs = new FileStream(inPath, FileMode.Open, FileAccess.Read);
+            FileStream outFs = new FileStream(outPath, FileMode.Create);
+            byte[] bufferIn = new byte[64];
+            int fileOffset = 0;
+            ulong i = 0;
+
+            while (fileOffset < inFs.Length)
             {
-                Console.WriteLine(" - " + b[i] + "\t" + b[i].ToString("X8"));
+                inFs.Seek(fileOffset, SeekOrigin.Begin);
+                bufferIn = new byte[64];
+                int bytesRead = inFs.Read(bufferIn, 0, 64);
+                outFs.Write(Salsa20cipher.cryptBlock(key, nonce, i, bufferIn), 0, 64);
+                fileOffset += 64;
+                i++;
             }
-        }
-
-        private static void escribirArchivo(String nombre, byte[] bytes){
-            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            //StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, nombre));
-            //outputFile.WriteLine(Encoding.UTF8.GetString(texto));
-            //outputFile.Close();
-            File.WriteAllBytes(Path.Combine(docPath, nombre), bytes);
+            inFs.Close();
+            outFs.Close(); watch.Stop();
+            return watch.ElapsedMilliseconds;
 
         }
+
+
     }
     
     

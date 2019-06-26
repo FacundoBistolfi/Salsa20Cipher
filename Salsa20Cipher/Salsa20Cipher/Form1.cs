@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 namespace Salsa20Cipher
 {
@@ -75,17 +76,32 @@ namespace Salsa20Cipher
             }
             else
             {
-
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                Salsa20Cipher.Salsa20cipher.crypt(key, nonce, keyLength, tbInPath.Text, tbOutPath.Text);
-                watch.Stop();
-                tbTime.Text = watch.ElapsedMilliseconds.ToString();
+                FileStream inFs = new FileStream(tbInPath.Text, FileMode.Open, FileAccess.Read);
+                FileStream outFs = new FileStream(tbOutPath.Text, FileMode.Create);
+                byte[] bufferIn = new byte[64];
+                int fileOffset = 0;
+                ulong i = 0;
+                pbar.Value = 0;
 
+                while (fileOffset < inFs.Length)
+                {
+                    //pbar.Value = (int)(fileOffset / inFs.Length) * 100;
+                    pbar.Value = (int)(fileOffset / inFs.Length) * 100;
+                    label10.Text = ((fileOffset / inFs.Length) * 100).ToString();
+                    inFs.Seek(fileOffset, SeekOrigin.Begin);
+                    bufferIn = new byte[64];
+                    int bytesRead = inFs.Read(bufferIn, 0, 64);
+                    outFs.Write(Salsa20cipher.cryptBlock(key, nonce, i, bufferIn), 0, 64);
+                    fileOffset += 64;
+                    i++;
+                }
+                inFs.Close();
+                outFs.Close(); watch.Stop();
+                tbTime.Text = watch.ElapsedMilliseconds.ToString();
             }
 
         }
-
-      
 
         private void btnIn_Click(object sender, EventArgs e)
         {
@@ -124,6 +140,9 @@ namespace Salsa20Cipher
             }
         }
 
-       
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
