@@ -39,9 +39,8 @@ namespace Salsa20Prueba
             while (fileOffset < inFs.Length)
             {
                 inFs.Seek(fileOffset, SeekOrigin.Begin);
-                bufferIn = new byte[64];
                 int bytesRead = inFs.Read(bufferIn, 0, 64);
-                outFs.Write(cryptBlock(key, nonce, i, bufferIn), 0, 64);
+                outFs.Write(cryptBlock(key, nonce, i, bufferIn), 0, bytesRead);
                 fileOffset += 64;
                 i++;
             }
