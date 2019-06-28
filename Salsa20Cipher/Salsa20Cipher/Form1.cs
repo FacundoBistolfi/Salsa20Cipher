@@ -92,8 +92,8 @@ namespace Salsa20Cipher
                     inFs.Seek(fileOffset, SeekOrigin.Begin);
                     bufferIn = new byte[64];
                     int bytesRead = inFs.Read(bufferIn, 0, 64);
-                    outFs.Write(Salsa20cipher.cryptBlock(key, nonce, i, bufferIn), 0, 64);
-                    fileOffset += 64;
+                    outFs.Write(Salsa20cipher.cryptBlock(key, nonce, i, bufferIn), 0, bytesRead);
+                    fileOffset += bytesRead;
                     i++;
                 }
                 inFs.Close();

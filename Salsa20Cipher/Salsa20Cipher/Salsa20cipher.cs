@@ -36,12 +36,12 @@ namespace Salsa20Cipher
             int fileOffset = 0;
             ulong i = 0;
 
-            while (fileOffset < inFs.Length) {
+            while (fileOffset < inFs.Length)
+            {
                 inFs.Seek(fileOffset, SeekOrigin.Begin);
-                bufferIn = new byte[64];
                 int bytesRead = inFs.Read(bufferIn, 0, 64);
                 outFs.Write(cryptBlock(key, nonce, i, bufferIn), 0, bytesRead);
-                fileOffset += 64;
+                fileOffset += bytesRead;
                 i++;
             }
 
@@ -78,7 +78,7 @@ namespace Salsa20Cipher
                 for (j = 0; j < cantFalta; j++)
                     bloque[j] = message[i * 64 + j];
                 bloque = cryptBlock(key, nonce, (ulong)i, bloque);
-                for (j = 0; j < 64; j++)
+                for (j = 0; j < cantFalta; j++)
                     encriptado[i * 64 + j] = bloque[j];
             }
 
@@ -274,7 +274,7 @@ namespace Salsa20Cipher
         }
 
         #endregion
-        
+
         #region Funciones de ronda
 
         //**********************
@@ -411,5 +411,12 @@ namespace Salsa20Cipher
 
         #endregion
 
+        public static string nameof(object o)
+        {
+            return "asd";
+        }
     }
+
+   
+
 }
