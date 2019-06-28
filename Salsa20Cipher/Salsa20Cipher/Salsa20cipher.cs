@@ -320,12 +320,6 @@ namespace Salsa20Cipher
 
         private static UInt32 rotl(UInt32 value, int shift)
         {
-            return rotl(value, shift, 32);
-        }
-
-
-        private static UInt32 rotl(UInt32 value, int shift, int mode)
-        {
             return (value << shift) | (value >> (32 - shift));
         }
 
