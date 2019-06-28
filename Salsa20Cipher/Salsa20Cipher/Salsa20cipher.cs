@@ -411,10 +411,7 @@ namespace Salsa20Cipher
 
         #endregion
 
-        public static string nameof(object o)
-        {
-            return "asd";
-        }
+        
     }
 
    
